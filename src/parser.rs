@@ -423,7 +423,7 @@ pub fn ifr_operations(input: &[u8]) -> IResult<&[u8], Vec<IfrOperation>> {
 }
 
 // Obtained from UEFI 2.7 Errata A, ch. "32.3.8.3 Opcode Reference"
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
 pub enum IfrOpcode {
     Form,              // Form
     Subtitle,          // Subtible
@@ -660,7 +660,7 @@ pub fn ifr_form(input: &[u8]) -> IResult<&[u8], IfrForm> {
 //
 //0x02 => IfrOpcode::Subtitle
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrSubtitle {
     pub PromptStringId: u16,
     pub HelpStringId: u16,
@@ -684,7 +684,7 @@ pub fn ifr_subtitle(input: &[u8]) -> IResult<&[u8], IfrSubtitle> {
 //
 //0x03 => IfrOpcode::Text
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrText {
     pub PromptStringId: u16,
     pub HelpStringId: u16,
@@ -708,7 +708,7 @@ pub fn ifr_text(input: &[u8]) -> IResult<&[u8], IfrText> {
 //
 //0x04 => IfrOpcode::Image
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrImage {
     pub ImageId: u16,
 }
@@ -720,7 +720,7 @@ pub fn ifr_image(input: &[u8]) -> IResult<&[u8], IfrImage> {
 //
 //0x05 => IfrOpcode::OneOf
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrOneOf<'a> {
     pub PromptStringId: u16,
     pub HelpStringId: u16,
@@ -759,7 +759,7 @@ pub fn ifr_one_of(input: &[u8]) -> IResult<&[u8], IfrOneOf> {
 //
 //0x06 => IfrOpcode::CheckBox
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrCheckBox {
     pub PromptStringId: u16,
     pub HelpStringId: u16,
@@ -795,7 +795,7 @@ pub fn ifr_check_box(input: &[u8]) -> IResult<&[u8], IfrCheckBox> {
 //
 //0x07 => IfrOpcode::Numeric
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrNumeric<'a> {
     pub PromptStringId: u16,
     pub HelpStringId: u16,
@@ -834,7 +834,7 @@ pub fn ifr_numeric(input: &[u8]) -> IResult<&[u8], IfrNumeric> {
 //
 //0x08 => IfrOpcode::Password
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrPassword {
     pub PromptStringId: u16,
     pub HelpStringId: u16,
@@ -873,7 +873,7 @@ pub fn ifr_password(input: &[u8]) -> IResult<&[u8], IfrPassword> {
 //
 //0x09 => IfrOpcode::OneOfOption
 //
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Copy, Clone)]
 pub struct HiiTime {
     pub Hour: u8,
     pub Minute: u8,
@@ -894,7 +894,7 @@ pub fn hii_time(input: &[u8]) -> IResult<&[u8], HiiTime> {
     )
 }
 
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Copy, Clone)]
 pub struct HiiDate {
     pub Year: u16,
     pub Month: u8,
@@ -915,7 +915,7 @@ pub fn hii_date(input: &[u8]) -> IResult<&[u8], HiiDate> {
     )
 }
 
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Copy, Clone)]
 pub struct HiiRef {
     pub QuestionId: Option<u16>,
     pub FormId: Option<u16>,
@@ -940,7 +940,7 @@ pub fn hii_ref(input: &[u8]) -> IResult<&[u8], HiiRef> {
     )
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub enum IfrTypeValue {
     NumSize8(u8),
     NumSize16(u16),
@@ -1017,7 +1017,7 @@ fn ifr_type_value(input: &[u8]) -> IResult<&[u8], IfrTypeValue> {
     )
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrOneOfOption {
     pub OptionStringId: u16,
     pub Flags: u8,
@@ -1044,7 +1044,7 @@ pub fn ifr_one_of_option(input: &[u8]) -> IResult<&[u8], IfrOneOfOption> {
 //
 //0x0C => IfrOpcode::Action
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrAction {
     pub PromptStringId: u16,
     pub HelpStringId: u16,
@@ -1081,7 +1081,7 @@ pub fn ifr_action(input: &[u8]) -> IResult<&[u8], IfrAction> {
 //
 //0x0D => IfrOpcode::ResetButton
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrResetButton {
     pub PromptStringId: u16,
     pub HelpStringId: u16,
@@ -1135,7 +1135,7 @@ pub fn ifr_form_set(input: &[u8]) -> IResult<&[u8], IfrFormSet> {
 //
 //0x0F => IfrOpcode::Ref
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrRef {
     pub PromptStringId: u16,
     pub HelpStringId: u16,
@@ -1181,7 +1181,7 @@ pub fn ifr_ref(input: &[u8]) -> IResult<&[u8], IfrRef> {
 //
 //0x10 => IfrOpcode::NoSubmitIf
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrNoSumbitIf {
     pub ErrorStringId: u16,
 }
@@ -1199,7 +1199,7 @@ pub fn ifr_no_submit_if(input: &[u8]) -> IResult<&[u8], IfrNoSumbitIf> {
 //
 //0x11 => IfrOpcode::InconsistentIf
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrInconsistentIf {
     pub ErrorStringId: u16,
 }
@@ -1217,7 +1217,7 @@ pub fn ifr_inconsistent_if(input: &[u8]) -> IResult<&[u8], IfrInconsistentIf> {
 //
 //0x12 => IfrOpcode::EqIdVal
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrEqIdVal {
     pub QuestionId: u16,
     pub Value: u16,
@@ -1238,7 +1238,7 @@ pub fn ifr_eq_id_val(input: &[u8]) -> IResult<&[u8], IfrEqIdVal> {
 //
 //0x13 => IfrOpcode::EqIdId
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrEqIdId {
     pub QuestionId: u16,
     pub OtherQuestionId: u16,
@@ -1259,7 +1259,7 @@ pub fn ifr_eq_id_id(input: &[u8]) -> IResult<&[u8], IfrEqIdId> {
 //
 //0x14 => IfrOpcode::EqIdValList
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrEqIdValList {
     pub QuestionId: u16,
     pub Values: Vec<u16>,
@@ -1285,7 +1285,7 @@ pub fn ifr_eq_id_val_list(input: &[u8]) -> IResult<&[u8], IfrEqIdValList> {
 //
 //0x18 => IfrOpcode::Rule
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrRule {
     pub RuleId: u8,
 }
@@ -1299,7 +1299,7 @@ pub fn ifr_rule(input: &[u8]) -> IResult<&[u8], IfrRule> {
 //
 //0x1A => IfrOpcode::Date
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrDate {
     pub PromptStringId: u16,
     pub HelpStringId: u16,
@@ -1335,7 +1335,7 @@ pub fn ifr_date(input: &[u8]) -> IResult<&[u8], IfrDate> {
 //
 //0x1B => IfrOpcode::Time
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrTime {
     pub PromptStringId: u16,
     pub HelpStringId: u16,
@@ -1371,7 +1371,7 @@ pub fn ifr_time(input: &[u8]) -> IResult<&[u8], IfrTime> {
 //
 //0x1C => IfrOpcode::String
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrString {
     pub PromptStringId: u16,
     pub HelpStringId: u16,
@@ -1413,7 +1413,7 @@ pub fn ifr_string(input: &[u8]) -> IResult<&[u8], IfrString> {
 //
 //0x1D => IfrOpcode::Refresh
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrRefresh {
     pub RefreshInterval: u8,
 }
@@ -1433,7 +1433,7 @@ pub fn ifr_refresh(input: &[u8]) -> IResult<&[u8], IfrRefresh> {
 //
 //0x1F => IfrOpcode::Animation
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrAnimation {
     pub AnimationId: u16,
 }
@@ -1449,7 +1449,7 @@ pub fn ifr_animation(input: &[u8]) -> IResult<&[u8], IfrAnimation> {
 //
 //0x23 => IfrOpcode::OrderedList
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrOrderedList {
     pub PromptStringId: u16,
     pub HelpStringId: u16,
@@ -1488,7 +1488,7 @@ pub fn ifr_ordered_list(input: &[u8]) -> IResult<&[u8], IfrOrderedList> {
 //
 //0x24 => IfrOpcode::VarStore
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrVarStore {
     pub Guid: Guid,
     pub VarStoreId: u16,
@@ -1515,7 +1515,7 @@ pub fn ifr_var_store(input: &[u8]) -> IResult<&[u8], IfrVarStore> {
 //
 //0x25 => IfrOpcode::VarStoreNameValue
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrVarStoreNameValue {
     pub VarStoreId: u16,
     pub Guid: Guid,
@@ -1536,7 +1536,7 @@ pub fn ifr_var_store_name_value(input: &[u8]) -> IResult<&[u8], IfrVarStoreNameV
 //
 //0x26 => IfrOpcode::VarStoreEfi
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrVarStoreEfi {
     pub VarStoreId: u16,
     pub Guid: Guid,
@@ -1566,7 +1566,7 @@ pub fn ifr_var_store_efi(input: &[u8]) -> IResult<&[u8], IfrVarStoreEfi> {
 //
 //0x27 => IfrOpcode::VarStoreDevice
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrVarStoreDevice {
     pub DevicePathStringId: u16,
 }
@@ -1588,7 +1588,7 @@ pub fn ifr_var_store_device(input: &[u8]) -> IResult<&[u8], IfrVarStoreDevice> {
 //
 //0x2B => IfrOpcode::Get
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrGet {
     pub VarStoreId: u16,
     pub VarStoreInfo: u16,
@@ -1612,7 +1612,7 @@ pub fn ifr_get(input: &[u8]) -> IResult<&[u8], IfrGet> {
 //
 //0x2C => IfrOpcode::Set
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrSet {
     pub VarStoreId: u16,
     pub VarStoreInfo: u16,
@@ -1636,7 +1636,7 @@ pub fn ifr_set(input: &[u8]) -> IResult<&[u8], IfrSet> {
 //
 //0x3F => IfrOpcode::RuleRef
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrRuleRef {
     pub RuleId: u8,
 }
@@ -1648,7 +1648,7 @@ pub fn ifr_rule_ref(input: &[u8]) -> IResult<&[u8], IfrRuleRef> {
 //
 //0x40 => IfrOpcode::QuestionRef1
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrQuestionRef1 {
     pub QuestionId: u16,
 }
@@ -1662,7 +1662,7 @@ pub fn ifr_question_ref_1(input: &[u8]) -> IResult<&[u8], IfrQuestionRef1> {
 //
 //0x42 => IfrOpcode::Uint8
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrUint8 {
     pub Value: u8,
 }
@@ -1674,7 +1674,7 @@ pub fn ifr_uint8(input: &[u8]) -> IResult<&[u8], IfrUint8> {
 //
 //0x43 => IfrOpcode::Uint16
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrUint16 {
     pub Value: u16,
 }
@@ -1686,7 +1686,7 @@ pub fn ifr_uint16(input: &[u8]) -> IResult<&[u8], IfrUint16> {
 //
 //0x44 => IfrOpcode::Uint32
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrUint32 {
     pub Value: u32,
 }
@@ -1698,7 +1698,7 @@ pub fn ifr_uint32(input: &[u8]) -> IResult<&[u8], IfrUint32> {
 //
 //0x45 => IfrOpcode::Uint64
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrUint64 {
     pub Value: u64,
 }
@@ -1714,7 +1714,7 @@ pub fn ifr_uint64(input: &[u8]) -> IResult<&[u8], IfrUint64> {
 //
 //0x49 => IfrOpcode::ToString
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrToString {
     pub Format: u8,
 }
@@ -1729,7 +1729,7 @@ pub fn ifr_to_string(input: &[u8]) -> IResult<&[u8], IfrToString> {
 //
 //0x4C => IfrOpcode::Find
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrFind {
     pub Format: u8,
 }
@@ -1743,7 +1743,7 @@ pub fn ifr_find(input: &[u8]) -> IResult<&[u8], IfrFind> {
 //
 //0x4E => IfrOpcode::StringRef1
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrStringRef1 {
     pub StringId: u16,
 }
@@ -1758,7 +1758,7 @@ pub fn ifr_string_ref_1(input: &[u8]) -> IResult<&[u8], IfrStringRef1> {
 //
 //0x51 => IfrOpcode::QuestionRef3
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrQuestionRef3 {
     pub DevicePathId: Option<u16>,
     pub QuestionGuid: Option<Guid>,
@@ -1788,7 +1788,7 @@ pub fn ifr_question_ref_3(input: &[u8]) -> IResult<&[u8], IfrQuestionRef3> {
 //
 //0x59 => IfrOpcode::Span
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrSpan {
     pub Flags: u8,
 }
@@ -1802,7 +1802,7 @@ pub fn ifr_span(input: &[u8]) -> IResult<&[u8], IfrSpan> {
 //
 //0x5B => IfrOpcode::Default
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrDefault {
     pub DefaultId: u16,
     pub Value: IfrTypeValue,
@@ -1823,7 +1823,7 @@ pub fn ifr_default(input: &[u8]) -> IResult<&[u8], IfrDefault> {
 //
 //0x5C => IfrOpcode::DefaultStore
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrDefaultStore {
     pub NameStringId: u16,
     pub DefaultId: u16,
@@ -1862,7 +1862,7 @@ pub fn ifr_form_map_method(input: &[u8]) -> IResult<&[u8], IfrFormMapMethod> {
     )
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrFormMap {
     pub FormId: u16,
     pub Methods: Vec<IfrFormMapMethod>,
@@ -1885,7 +1885,7 @@ pub fn ifr_form_map(input: &[u8]) -> IResult<&[u8], IfrFormMap> {
 //
 //0x5F => IfrOpcode::Guid
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrGuid<'a> {
     pub Guid: Guid,
     pub Data: &'a [u8],
@@ -1896,7 +1896,7 @@ pub fn ifr_guid(input: &[u8]) -> IResult<&[u8], IfrGuid> {
 }
 
 // EDK2 GUID types
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
 pub enum IfrEdk2ExtendOpCode {
     Label,
     Banner,
@@ -1926,7 +1926,7 @@ pub const IFR_TIANO_GUID: Guid = Guid {
     data4: [0xb2, 0x66, 0x53, 0x8c, 0x38, 0xaf, 0x48, 0xce],
 };
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrGuidEdk2<'a> {
     pub ExtendedOpCode: IfrEdk2ExtendOpCode,
     pub Data: &'a [u8],
@@ -1945,7 +1945,7 @@ pub fn ifr_guid_edk2(input: &[u8]) -> IResult<&[u8], IfrGuidEdk2> {
 }
 // Label, Timeout, Class and Subclass all have one u16 as Data
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrGuidEdk2Banner {
     pub Title: u16,
     pub LineNumber: u16,
@@ -1967,7 +1967,7 @@ pub fn ifr_guid_edk2_banner(input: &[u8]) -> IResult<&[u8], IfrGuidEdk2Banner> {
 }
 
 //EDK1 GUID types
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
 pub enum IfrEdkExtendOpCode {
     OptionKey,
     VarEqName,
@@ -1991,7 +1991,7 @@ pub const IFR_FRAMEWORK_GUID: Guid = Guid {
     data4: [0xb7, 0x82, 0xae, 0x6b, 0x2b, 0x17, 0x8c, 0xd7],
 };
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrGuidEdk<'a> {
     pub ExtendedOpCode: IfrEdkExtendOpCode,
     pub QuestionId: u16,
@@ -2016,7 +2016,7 @@ pub fn ifr_guid_edk(input: &[u8]) -> IResult<&[u8], IfrGuidEdk> {
 //
 //0x60 => IfrOpcode::Security
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrSecurity {
     pub Guid: Guid,
 }
@@ -2030,7 +2030,7 @@ pub fn ifr_security(input: &[u8]) -> IResult<&[u8], IfrSecurity> {
 //
 //0x62 => IfrOpcode::RefreshId
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrRefreshId {
     pub Guid: Guid,
 }
@@ -2042,7 +2042,7 @@ pub fn ifr_refresh_id(input: &[u8]) -> IResult<&[u8], IfrRefreshId> {
 //
 //0x63 => IfrOpcode::WarningIf
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrWarningIf {
     pub WarningStringId: u16,
     pub Timeout: u8,
@@ -2063,7 +2063,7 @@ pub fn ifr_warning_if(input: &[u8]) -> IResult<&[u8], IfrWarningIf> {
 //
 //0x64 => IfrOpcode::Match2
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrMatch2 {
     pub Guid: Guid,
 }
