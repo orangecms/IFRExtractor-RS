@@ -3,12 +3,13 @@
 extern crate nom;
 
 use nom::{le_u16, le_u32, le_u64, le_u8, rest, IResult};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 //
 // Common data types
 //
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Copy, Clone)]
 pub struct Guid {
     pub data1: u32,
     pub data2: u16,
@@ -55,14 +56,14 @@ impl fmt::Display for Guid {
 //
 // EFI_HII_PACKAGE_HEADER
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct HiiPackage<'a> {
     pub Length: u32, // 24 bits
     pub Type: HiiPackageType,
     pub Data: Option<&'a [u8]>,
 }
 
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
 pub enum HiiPackageType {
     Guid,
     Form,
@@ -153,7 +154,7 @@ fn hii_form_package_candidate_helper(input: &[u8]) -> IResult<&[u8], usize> {
 //
 // HII string package
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct HiiStringPackage<'a> {
     pub HdrSize: u32,
     pub StringInfoOffset: u32,
@@ -185,7 +186,7 @@ pub fn hii_string_package(input: &[u8]) -> IResult<&[u8], HiiStringPackage> {
     )
 }
 
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
 pub enum HiiSibtType {
     End,
     StringScsu,
@@ -228,7 +229,7 @@ impl From<u8> for HiiSibtType {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct HiiSibtBlock<'a> {
     pub Type: HiiSibtType,
     pub Data: Option<&'a [u8]>,
@@ -393,7 +394,7 @@ pub fn sibt_strings_ucs2_font(input: &[u8]) -> IResult<&[u8], Vec<String>> {
 //
 // HII form package
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrOperation<'a> {
     pub OpCode: IfrOpcode,
     pub Length: u8,

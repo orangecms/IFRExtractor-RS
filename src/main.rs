@@ -1,6 +1,8 @@
 // Parser
 #[macro_use]
 extern crate nom;
+extern crate serde;
+extern crate serde_json;
 pub mod parser;
 
 // Main
@@ -1322,6 +1324,8 @@ Consider splitting the input file",
                                                         .unwrap_or(&String::from("InvalidId"))
                                                 );
                                             }
+                                            let fj = serde_json::to_string(form_map);
+                                            println!("{}", fj);
                                         }
                                         Err(e) => {
                                             write!(&mut text, "Parse error: {:?}", e);
@@ -1395,7 +1399,7 @@ Consider splitting the input file",
                                                                     done = true;
                                                                 }
                                                             }
-                                                            parser::IfrEdk2ExtendOpCode::Unknown(_) => {;}
+                                                            parser::IfrEdk2ExtendOpCode::Unknown(_) => {}
                                                         }
                                                     }
                                                 }
