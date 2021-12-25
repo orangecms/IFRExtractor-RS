@@ -52,6 +52,14 @@ fn print_form_map(form_map: &parser::IfrFormMap) {
     };
 }
 
+fn print_form_set(form_set: &parser::IfrFormSet) {
+    let fj = serde_json::to_string(&form_set);
+    match fj {
+        Ok(j) => println!("{}", j),
+        Err(_error) => println!("could not serialize form_set"),
+    };
+}
+
 fn ifr_extract(path: &OsStr, data: &[u8]) {
     let mut text = Vec::new(); // Output text
     let mut strings_map = HashMap::new(); // Map of StringIds to strings
@@ -587,6 +595,7 @@ Consider splitting the input file",
                                                 strings_map.get(&form_set.TitleStringId).unwrap_or(&String::from("InvalidId")), 
                                                 strings_map.get(&form_set.HelpStringId).unwrap_or(&String::from("InvalidId")),
                                                 form_set.Flags);
+                                            print_form_set(&form_set);
                                         }
                                         Err(e) => {
                                             write!(&mut text, "Parse error: {:?}", e);
