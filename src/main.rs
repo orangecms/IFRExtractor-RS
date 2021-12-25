@@ -1324,8 +1324,8 @@ Consider splitting the input file",
                                                         .unwrap_or(&String::from("InvalidId"))
                                                 );
                                             }
-                                            let fj = serde_json::to_string(form_map);
-                                            println!("{}", fj);
+                                            let fj = serde_json::to_string(&form_map);
+                                            println!("{}", fj.to_string());
                                         }
                                         Err(e) => {
                                             write!(&mut text, "Parse error: {:?}", e);

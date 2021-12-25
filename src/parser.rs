@@ -639,7 +639,7 @@ impl From<u8> for IfrOpcode {
 //
 //0x01 => IfrOpcode::Form
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrForm {
     pub FormId: u16,
     pub TitleStringId: u16,
@@ -1105,7 +1105,7 @@ pub fn ifr_reset_button(input: &[u8]) -> IResult<&[u8], IfrResetButton> {
 //
 //0x0E => IfrOpcode::FormSet
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrFormSet {
     pub Guid: Guid,
     pub TitleStringId: u16,
@@ -1844,7 +1844,7 @@ pub fn ifr_default_store(input: &[u8]) -> IResult<&[u8], IfrDefaultStore> {
 //
 //0x5D => IfrOpcode::FormMap
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct IfrFormMapMethod {
     pub MethodTitle: u16,
     pub MethodIdentifier: Guid,
