@@ -1560,6 +1560,6 @@ Consider splitting the input file",
         .open(&file_path)
         .unwrap_or_else(|_| panic!("Can't create output file {:?}", &file_path));
     output_file
-        .write(&text)
+        .write_all(&text)
         .unwrap_or_else(|_| panic!("Can't write to output file {:?}", file_path));
 }
