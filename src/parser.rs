@@ -90,7 +90,7 @@ impl From<u8> for HiiPackageType {
             0x07 => HiiPackageType::SimpleFonts,
             0x08 => HiiPackageType::DevicePath,
             0xDF => HiiPackageType::End,
-            0xE0...0xFF => HiiPackageType::System(n),
+            0xE0..=0xFF => HiiPackageType::System(n),
             _ => HiiPackageType::Unknown(n),
         }
     }
@@ -1507,7 +1507,7 @@ pub fn ifr_var_store(input: &[u8]) -> IResult<&[u8], IfrVarStore> {
                 Guid: g,
                 VarStoreId: vsid,
                 Size: size,
-                Name: String::from_utf8_lossy(&name).to_string(),
+                Name: String::from_utf8_lossy(name).to_string(),
             })
     )
 }
@@ -1558,7 +1558,7 @@ pub fn ifr_var_store_efi(input: &[u8]) -> IResult<&[u8], IfrVarStoreEfi> {
                 Guid: g,
                 Attributes: atr,
                 Size: size,
-                Name: String::from_utf8_lossy(&name).to_string(),
+                Name: String::from_utf8_lossy(name).to_string(),
             })
     )
 }

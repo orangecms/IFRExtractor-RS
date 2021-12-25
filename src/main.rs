@@ -6,7 +6,7 @@ extern crate serde_json;
 pub mod parser;
 
 // Main
-use serde_json::Result;
+
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::ffi::OsString;
@@ -48,7 +48,7 @@ fn print_form_map(form_map: &parser::IfrFormMap) {
     let fj = serde_json::to_string(&form_map);
     match fj {
         Ok(j) => println!("{}", j),
-        Err(error) => println!("could not serialize form_map"),
+        Err(_error) => println!("could not serialize form_map"),
     };
 }
 
@@ -68,7 +68,7 @@ fn ifr_extract(path: &OsStr, data: &[u8]) {
             if let Ok((_, package)) = parser::hii_package(candidate) {
                 if let Ok((unp, string_package)) = parser::hii_string_package(package.Data.unwrap())
                 {
-                    if unp.len() > 0 {
+                    if !unp.is_empty() {
                         writeln!(
                             &mut text,
                             "HII string package: remained unparsed: 0x{:X}",
@@ -91,7 +91,7 @@ fn ifr_extract(path: &OsStr, data: &[u8]) {
                         continue;
                     }
                     // Ask to split the input file if multiple string packages for English are found
-                    if strings_map.len() > 0 {
+                    if !strings_map.is_empty() {
                         // TODO: some heuristics might be applied here to perform the split automatically
                         //       but they require a different, less generic way to search for HII packages
                         println!(
@@ -102,12 +102,12 @@ Consider splitting the input file",
                         );
                         std::process::exit(3);
                     }
-                    writeln!(&mut text, "");
+                    writeln!(&mut text);
 
                     // Parse SIBT blocks
                     match parser::hii_sibt_blocks(string_package.Data) {
                         Ok((unp, sibt_blocks)) => {
-                            if unp.len() > 0 {
+                            if !unp.is_empty() {
                                 writeln!(
                                     &mut text,
                                     "SibtBlocks: remained unparsed: 0x{:X}",
@@ -115,7 +115,7 @@ Consider splitting the input file",
                                 );
                             }
 
-                            strings_map.insert(0 as u16, String::new());
+                            strings_map.insert(0_u16, String::new());
                             let mut current_string_index = 1;
                             for block in &sibt_blocks {
                                 match block.Type {
@@ -250,7 +250,7 @@ Consider splitting the input file",
     // Search for all form packages in the input file
     // using the constructed ID to string map
     //
-    if strings_map.len() == 0 {
+    if strings_map.is_empty() {
         println!("No string packages were found in the input file");
         std::process::exit(2);
     }
@@ -271,7 +271,7 @@ Consider splitting the input file",
                             i - candidate.len(),
                             candidate.len()
                         );
-                        if unp.len() > 0 {
+                        if !unp.is_empty() {
                             writeln!(
                                 &mut text,
                                 "HII form package: remained unparsed: 0x{:X}",
@@ -281,10 +281,8 @@ Consider splitting the input file",
 
                         let mut scope_depth = 1;
                         for operation in &operations {
-                            if operation.OpCode == parser::IfrOpcode::End {
-                                if scope_depth >= 1 {
-                                    scope_depth -= 1;
-                                }
+                            if operation.OpCode == parser::IfrOpcode::End && scope_depth >= 1 {
+                                scope_depth -= 1;
                             }
 
                             write!(
@@ -298,7 +296,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Form => {
                                     match parser::ifr_form(operation.Data.unwrap()) {
                                         Ok((unp, form)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -320,7 +318,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Subtitle => {
                                     match parser::ifr_subtitle(operation.Data.unwrap()) {
                                         Ok((unp, sub)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -345,7 +343,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Text => {
                                     match parser::ifr_text(operation.Data.unwrap()) {
                                         Ok((unp, txt)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -372,7 +370,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Image => {
                                     match parser::ifr_image(operation.Data.unwrap()) {
                                         Ok((unp, image)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -387,7 +385,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::OneOf => {
                                     match parser::ifr_one_of(operation.Data.unwrap()) {
                                         Ok((unp, onf)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -410,7 +408,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::CheckBox => {
                                     match parser::ifr_check_box(operation.Data.unwrap()) {
                                         Ok((unp, cb)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -432,7 +430,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Numeric => {
                                     match parser::ifr_numeric(operation.Data.unwrap()) {
                                         Ok((unp, num)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -455,7 +453,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Password => {
                                     match parser::ifr_password(operation.Data.unwrap()) {
                                         Ok((unp, pw)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -478,7 +476,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::OneOfOption => {
                                     match parser::ifr_one_of_option(operation.Data.unwrap()) {
                                         Ok((unp, opt)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -526,7 +524,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Action => {
                                     match parser::ifr_action(operation.Data.unwrap()) {
                                         Ok((unp, act)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -556,7 +554,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::ResetButton => {
                                     match parser::ifr_reset_button(operation.Data.unwrap()) {
                                         Ok((unp, rst)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -581,7 +579,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::FormSet => {
                                     match parser::ifr_form_set(operation.Data.unwrap()) {
                                         Ok((unp, form_set)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -599,7 +597,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Ref => {
                                     match parser::ifr_ref(operation.Data.unwrap()) {
                                         Ok((unp, rf)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -632,7 +630,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::NoSubmitIf => {
                                     match parser::ifr_no_submit_if(operation.Data.unwrap()) {
                                         Ok((unp, ns)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -653,7 +651,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::InconsistentIf => {
                                     match parser::ifr_inconsistent_if(operation.Data.unwrap()) {
                                         Ok((unp, inc)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -674,7 +672,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::EqIdVal => {
                                     match parser::ifr_eq_id_val(operation.Data.unwrap()) {
                                         Ok((unp, eq)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -693,7 +691,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::EqIdId => {
                                     match parser::ifr_eq_id_id(operation.Data.unwrap()) {
                                         Ok((unp, eq)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -712,7 +710,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::EqIdValList => {
                                     match parser::ifr_eq_id_val_list(operation.Data.unwrap()) {
                                         Ok((unp, eql)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -737,7 +735,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Rule => {
                                     match parser::ifr_rule(operation.Data.unwrap()) {
                                         Ok((unp, rule)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -754,7 +752,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Date => {
                                     match parser::ifr_date(operation.Data.unwrap()) {
                                         Ok((unp, dt)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -776,7 +774,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Time => {
                                     match parser::ifr_time(operation.Data.unwrap()) {
                                         Ok((unp, time)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -798,7 +796,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::String => {
                                     match parser::ifr_string(operation.Data.unwrap()) {
                                         Ok((unp, st)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -822,7 +820,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Refresh => {
                                     match parser::ifr_refresh(operation.Data.unwrap()) {
                                         Ok((unp, refr)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -843,7 +841,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Animation => {
                                     match parser::ifr_animation(operation.Data.unwrap()) {
                                         Ok((unp, anim)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -864,7 +862,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::OrderedList => {
                                     match parser::ifr_ordered_list(operation.Data.unwrap()) {
                                         Ok((unp, ol)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -887,7 +885,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::VarStore => {
                                     match parser::ifr_var_store(operation.Data.unwrap()) {
                                         Ok((unp, var_store)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -903,7 +901,7 @@ Consider splitting the input file",
                                     match parser::ifr_var_store_name_value(operation.Data.unwrap())
                                     {
                                         Ok((unp, var_store)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -922,7 +920,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::VarStoreEfi => {
                                     match parser::ifr_var_store_efi(operation.Data.unwrap()) {
                                         Ok((unp, var_store)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -937,7 +935,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::VarStoreDevice => {
                                     match parser::ifr_var_store_device(operation.Data.unwrap()) {
                                         Ok((unp, var_store)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -964,7 +962,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Get => {
                                     match parser::ifr_get(operation.Data.unwrap()) {
                                         Ok((unp, get)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -982,7 +980,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Set => {
                                     match parser::ifr_set(operation.Data.unwrap()) {
                                         Ok((unp, set)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1036,7 +1034,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::RuleRef => {
                                     match parser::ifr_rule_ref(operation.Data.unwrap()) {
                                         Ok((unp, rule)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1051,7 +1049,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::QuestionRef1 => {
                                     match parser::ifr_question_ref_1(operation.Data.unwrap()) {
                                         Ok((unp, qr)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1068,7 +1066,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Uint8 => {
                                     match parser::ifr_uint8(operation.Data.unwrap()) {
                                         Ok((unp, u)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1083,7 +1081,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Uint16 => {
                                     match parser::ifr_uint16(operation.Data.unwrap()) {
                                         Ok((unp, u)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1098,7 +1096,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Uint32 => {
                                     match parser::ifr_uint32(operation.Data.unwrap()) {
                                         Ok((unp, u)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1113,7 +1111,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Uint64 => {
                                     match parser::ifr_uint64(operation.Data.unwrap()) {
                                         Ok((unp, u)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1134,7 +1132,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::ToString => {
                                     match parser::ifr_to_string(operation.Data.unwrap()) {
                                         Ok((unp, ts)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1153,7 +1151,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Find => {
                                     match parser::ifr_find(operation.Data.unwrap()) {
                                         Ok((unp, fnd)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1170,7 +1168,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::StringRef1 => {
                                     match parser::ifr_string_ref_1(operation.Data.unwrap()) {
                                         Ok((unp, st)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1196,7 +1194,7 @@ Consider splitting the input file",
                                     if operation.Length > 2 {
                                         match parser::ifr_question_ref_3(operation.Data.unwrap()) {
                                             Ok((unp, qr)) => {
-                                                if unp.len() > 0 {
+                                                if !unp.is_empty() {
                                                     write!(
                                                         &mut text,
                                                         "Unparsed: 0x{:X}, ",
@@ -1241,7 +1239,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Span => {
                                     match parser::ifr_span(operation.Data.unwrap()) {
                                         Ok((unp, span)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1258,7 +1256,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Default => {
                                     match parser::ifr_default(operation.Data.unwrap()) {
                                         Ok((unp, def)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1296,7 +1294,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::DefaultStore => {
                                     match parser::ifr_default_store(operation.Data.unwrap()) {
                                         Ok((unp, default_store)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1318,7 +1316,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::FormMap => {
                                     match parser::ifr_form_map(operation.Data.unwrap()) {
                                         Ok((unp, form_map)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1346,7 +1344,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Guid => {
                                     match parser::ifr_guid(operation.Data.unwrap()) {
                                         Ok((unp, guid)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1458,7 +1456,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Security => {
                                     match parser::ifr_security(operation.Data.unwrap()) {
                                         Ok((unp, sec)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1475,7 +1473,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::RefreshId => {
                                     match parser::ifr_refresh_id(operation.Data.unwrap()) {
                                         Ok((unp, rid)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1490,7 +1488,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::WarningIf => {
                                     match parser::ifr_warning_if(operation.Data.unwrap()) {
                                         Ok((unp, warn)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1512,7 +1510,7 @@ Consider splitting the input file",
                                 parser::IfrOpcode::Match2 => {
                                     match parser::ifr_match_2(operation.Data.unwrap()) {
                                         Ok((unp, m2)) => {
-                                            if unp.len() > 0 {
+                                            if !unp.is_empty() {
                                                 write!(&mut text, "Unparsed: 0x{:X}, ", unp.len());
                                             }
 
@@ -1532,9 +1530,9 @@ Consider splitting the input file",
                                     );
                                 }
                             }
-                            writeln!(&mut text, "");
+                            writeln!(&mut text);
 
-                            if operation.ScopeStart == true {
+                            if operation.ScopeStart {
                                 scope_depth += 1;
                             }
                         }
@@ -1560,8 +1558,8 @@ Consider splitting the input file",
         .truncate(true)
         .create(true)
         .open(&file_path)
-        .expect(&format!("Can't create output file {:?}", &file_path));
+        .unwrap_or_else(|_| panic!("Can't create output file {:?}", &file_path));
     output_file
         .write(&text)
-        .expect(&format!("Can't write to output file {:?}", file_path));
+        .unwrap_or_else(|_| panic!("Can't write to output file {:?}", file_path));
 }
