@@ -6,6 +6,7 @@ extern crate serde_json;
 pub mod parser;
 
 // Main
+use serde_json::Result;
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::ffi::OsString;
@@ -43,7 +44,15 @@ fn main() {
     ifr_extract(path.as_os_str(), &data);
 }
 
-fn ifr_extract(path: &OsStr, data: &[u8]) -> () {
+fn print_form_map(form_map: &parser::IfrFormMap) {
+    let fj = serde_json::to_string(&form_map);
+    match fj {
+        Ok(j) => println!("{}", j),
+        Err(error) => println!("could not serialize form_map"),
+    };
+}
+
+fn ifr_extract(path: &OsStr, data: &[u8]) {
     let mut text = Vec::new(); // Output text
     let mut strings_map = HashMap::new(); // Map of StringIds to strings
 
@@ -1314,7 +1323,7 @@ Consider splitting the input file",
                                             }
 
                                             write!(&mut text, "FormId: {}", form_map.FormId);
-                                            for method in form_map.Methods {
+                                            for method in &form_map.Methods {
                                                 write!(
                                                     &mut text,
                                                     "| GUID: {}, Method: \"{}\"",
@@ -1324,8 +1333,7 @@ Consider splitting the input file",
                                                         .unwrap_or(&String::from("InvalidId"))
                                                 );
                                             }
-                                            let fj = serde_json::to_string(&form_map);
-                                            println!("{}", fj);
+                                            print_form_map(&form_map);
                                         }
                                         Err(e) => {
                                             write!(&mut text, "Parse error: {:?}", e);
