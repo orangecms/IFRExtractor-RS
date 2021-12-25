@@ -1325,7 +1325,7 @@ Consider splitting the input file",
                                                 );
                                             }
                                             let fj = serde_json::to_string(&form_map);
-                                            println!("{}", fj.to_string());
+                                            println!("{}", fj);
                                         }
                                         Err(e) => {
                                             write!(&mut text, "Parse error: {:?}", e);
