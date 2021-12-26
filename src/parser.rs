@@ -1111,6 +1111,7 @@ pub struct IfrFormSet {
     pub TitleStringId: u16,
     pub TitleString: String,
     pub HelpStringId: u16,
+    pub HelpString: String,
     pub Flags: u8,
     pub ClassGuid: Guid,
 }
@@ -1128,6 +1129,7 @@ pub fn ifr_form_set(input: &[u8]) -> IResult<&[u8], IfrFormSet> {
                 TitleStringId: tsid,
                 TitleString: String::from(""),
                 HelpStringId: hsid,
+                HelpString: String::from(""),
                 Flags: flags,
                 ClassGuid: clsg,
             })

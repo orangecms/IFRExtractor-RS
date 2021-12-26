@@ -476,19 +476,19 @@ fn handle_operations(
                         .get(&form_set.TitleStringId)
                         .unwrap_or(&String::from("InvalidId"))
                         .to_owned();
+                    let help_string = strings_map
+                        .get(&form_set.HelpStringId)
+                        .unwrap_or(&String::from("InvalidId"))
+                        .to_owned();
                     write!(
                         text,
                         "GUID: {}, Title: \"{}\", Help: \"{}\", Flags: 0x{:X}",
-                        form_set.Guid,
-                        title_string,
-                        strings_map
-                            .get(&form_set.HelpStringId)
-                            .unwrap_or(&String::from("InvalidId")),
-                        form_set.Flags
+                        form_set.Guid, title_string, help_string, form_set.Flags
                     )
                     .unwrap();
                     let fs = parser::IfrFormSet {
                         TitleString: title_string,
+                        HelpString: help_string,
                         ..form_set
                     };
                     print_form_set(&fs);
