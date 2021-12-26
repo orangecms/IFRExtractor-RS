@@ -60,6 +60,131 @@ fn print_form_set(form_set: &parser::IfrFormSet) {
     };
 }
 
+fn handle_guid(
+    operation: &parser::IfrOperation,
+    text: &mut Vec<u8>,
+    strings_map: &HashMap<u16, String>,
+) {
+    match parser::ifr_guid(operation.Data.unwrap()) {
+        Ok((unp, guid)) => {
+            if !unp.is_empty() {
+                write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
+            }
+
+            // This manual parsing here is ugly and can ultimately be done using nom,
+            // but it's done already and not that important anyway
+            // TODO: refactor later
+            let mut done = false;
+            match guid.Guid {
+                parser::IFR_TIANO_GUID => {
+                    if let Ok((_, edk2)) = parser::ifr_guid_edk2(guid.Data) {
+                        match edk2.ExtendedOpCode {
+                            parser::IfrEdk2ExtendOpCode::Banner => {
+                                if let Ok((_, banner)) = parser::ifr_guid_edk2_banner(edk2.Data) {
+                                    write!(text, "Guid: {}, ExtendedOpCode: {:?}, Title: \"{}\", LineNumber: {}, Alignment: {} ", 
+                                                                    guid.Guid, 
+                                                                    edk2.ExtendedOpCode,
+                                                                    strings_map.get(&banner.Title).unwrap_or(&String::from("InvalidId")),
+                                                                    banner.LineNumber,
+                                                                    banner.Alignment).unwrap();
+                                    done = true;
+                                }
+                            }
+                            parser::IfrEdk2ExtendOpCode::Label => {
+                                if edk2.Data.len() == 2 {
+                                    write!(
+                                        text,
+                                        "Guid: {}, ExtendedOpCode: {:?}, LabelNumber: {}",
+                                        guid.Guid,
+                                        edk2.ExtendedOpCode,
+                                        edk2.Data[1] as u16 * 100 + edk2.Data[0] as u16
+                                    )
+                                    .unwrap();
+                                    done = true;
+                                }
+                            }
+                            parser::IfrEdk2ExtendOpCode::Timeout => {
+                                if edk2.Data.len() == 2 {
+                                    write!(
+                                        text,
+                                        "Guid: {}, ExtendedOpCode: {:?}, Timeout: {}",
+                                        guid.Guid,
+                                        edk2.ExtendedOpCode,
+                                        edk2.Data[1] as u16 * 100 + edk2.Data[0] as u16
+                                    )
+                                    .unwrap();
+                                    done = true;
+                                }
+                            }
+                            parser::IfrEdk2ExtendOpCode::Class => {
+                                if edk2.Data.len() == 2 {
+                                    write!(
+                                        text,
+                                        "Guid: {}, ExtendedOpCode: {:?}, Class: {}",
+                                        guid.Guid,
+                                        edk2.ExtendedOpCode,
+                                        edk2.Data[1] as u16 * 100 + edk2.Data[0] as u16
+                                    )
+                                    .unwrap();
+                                    done = true;
+                                }
+                            }
+                            parser::IfrEdk2ExtendOpCode::SubClass => {
+                                if edk2.Data.len() == 2 {
+                                    write!(
+                                        text,
+                                        "Guid: {}, ExtendedOpCode: {:?}, SubClass: {}",
+                                        guid.Guid,
+                                        edk2.ExtendedOpCode,
+                                        edk2.Data[1] as u16 * 100 + edk2.Data[0] as u16
+                                    )
+                                    .unwrap();
+                                    done = true;
+                                }
+                            }
+                            parser::IfrEdk2ExtendOpCode::Unknown(_) => {}
+                        }
+                    }
+                }
+                parser::IFR_FRAMEWORK_GUID => {
+                    if let Ok((_, edk)) = parser::ifr_guid_edk(guid.Data) {
+                        match edk.ExtendedOpCode {
+                            parser::IfrEdkExtendOpCode::OptionKey => {
+                                write!(
+                                    text,
+                                    "Guid: {}, ExtendedOpCode: {:?}, QuestionId: {}, Data: {:?}",
+                                    guid.Guid, edk.ExtendedOpCode, edk.QuestionId, edk.Data
+                                )
+                                .unwrap();
+                                done = true;
+                            }
+                            parser::IfrEdkExtendOpCode::VarEqName => {
+                                if edk.Data.len() == 2 {
+                                    let name_id = edk.Data[1] as u16 * 100 + edk.Data[0] as u16;
+                                    write!(text, "Guid: {}, ExtendedOpCode: {:?}, QuestionId: {}, Name: \"{}\"", 
+                                                                        guid.Guid, 
+                                                                        edk.ExtendedOpCode,
+                                                                        edk.QuestionId,
+                                                                        strings_map.get(&name_id).unwrap_or(&String::from("InvalidId"))).unwrap();
+                                    done = true;
+                                }
+                            }
+                            parser::IfrEdkExtendOpCode::Unknown(_) => {}
+                        }
+                    }
+                }
+                _ => {}
+            }
+            if !done {
+                write!(text, "Guid: {}, Optional data: {:?}", guid.Guid, guid.Data).unwrap();
+            }
+        }
+        Err(e) => {
+            write!(text, "Parse error: {:?}", e).unwrap();
+        }
+    }
+}
+
 fn big_clunky_thing(
     operations: &Vec<parser::IfrOperation>,
     text: &mut Vec<u8>,
@@ -111,17 +236,18 @@ fn big_clunky_thing(
                             .get(&sub.HelpStringId)
                             .unwrap_or(&String::from("InvalidId")),
                         sub.Flags
-                    );
+                    )
+                    .unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x03: Text
             parser::IfrOpcode::Text => match parser::ifr_text(operation.Data.unwrap()) {
                 Ok((unp, txt)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
                     write!(
@@ -136,30 +262,31 @@ fn big_clunky_thing(
                         strings_map
                             .get(&txt.TextId)
                             .unwrap_or(&String::from("InvalidId"))
-                    );
+                    )
+                    .unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x04: Image
             parser::IfrOpcode::Image => match parser::ifr_image(operation.Data.unwrap()) {
                 Ok((unp, image)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "ImageId: {}", image.ImageId);
+                    write!(text, "ImageId: {}", image.ImageId).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x05: OneOf
             parser::IfrOpcode::OneOf => match parser::ifr_one_of(operation.Data.unwrap()) {
                 Ok((unp, onf)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
                     write!(text, "Prompt: \"{}\", Help: \"{}\", QuestionFlags: 0x{:X}, QuestionId: {}, VarStoreId: {}, VarStoreOffset: 0x{:X}, Flags: 0x{:X}, MinMaxData: {:?}", 
@@ -170,17 +297,17 @@ fn big_clunky_thing(
                                                 onf.VarStoreId,
                                                 onf.VarStoreInfo,
                                                 onf.Flags,
-                                                onf.Data);
+                                                onf.Data).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x06: CheckBox
             parser::IfrOpcode::CheckBox => match parser::ifr_check_box(operation.Data.unwrap()) {
                 Ok((unp, cb)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
                     write!(text, "Prompt: \"{}\", Help: \"{}\", QuestionFlags: 0x{:X}, QuestionId: {}, VarStoreId: {}, VarStoreOffset: 0x{:X}, Flags: 0x{:X}", 
@@ -190,17 +317,17 @@ fn big_clunky_thing(
                                                 cb.QuestionId,
                                                 cb.VarStoreId,
                                                 cb.VarStoreInfo,
-                                                cb.Flags);
+                                                cb.Flags).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x07: Numeric
             parser::IfrOpcode::Numeric => match parser::ifr_numeric(operation.Data.unwrap()) {
                 Ok((unp, num)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
                     write!(text, "Prompt: \"{}\", Help: \"{}\", QuestionFlags: 0x{:X}, QuestionId: {}, VarStoreId: {}, VarStoreOffset: 0x{:X}, Flags: 0x{:X}, MinMaxData: {:?}", 
@@ -211,17 +338,17 @@ fn big_clunky_thing(
                                                 num.VarStoreId,
                                                 num.VarStoreInfo,
                                                 num.Flags,
-                                                num.Data);
+                                                num.Data).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x08: Password
             parser::IfrOpcode::Password => match parser::ifr_password(operation.Data.unwrap()) {
                 Ok((unp, pw)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
                     write!(text, "Prompt: \"{}\", Help: \"{}\", QuestionFlags: 0x{:X}, QuestionId: {}, VarStoreId: {}, VarStoreInfo: 0x{:X}, MinSize: {}, MaxSize: {}", 
@@ -232,10 +359,10 @@ fn big_clunky_thing(
                                                 pw.VarStoreId,
                                                 pw.VarStoreInfo,
                                                 pw.MinSize,
-                                                pw.MaxSize);
+                                                pw.MaxSize).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x09: OneOfOption
@@ -243,7 +370,7 @@ fn big_clunky_thing(
                 match parser::ifr_one_of_option(operation.Data.unwrap()) {
                     Ok((unp, opt)) => {
                         if !unp.is_empty() {
-                            write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                            write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                         }
 
                         write!(
@@ -252,29 +379,32 @@ fn big_clunky_thing(
                             strings_map
                                 .get(&opt.OptionStringId)
                                 .unwrap_or(&String::from("InvalidId"))
-                        );
+                        )
+                        .unwrap();
                         match opt.Value {
                             parser::IfrTypeValue::String(x) => {
                                 write!(
                                     text,
                                     "String: \"{}\"",
                                     strings_map.get(&x).unwrap_or(&String::from("InvalidId"))
-                                );
+                                )
+                                .unwrap();
                             }
                             parser::IfrTypeValue::Action(x) => {
                                 write!(
                                     text,
                                     "Action: \"{}\"",
                                     strings_map.get(&x).unwrap_or(&String::from("InvalidId"))
-                                );
+                                )
+                                .unwrap();
                             }
                             _ => {
-                                write!(text, "Value: {}", opt.Value);
+                                write!(text, "Value: {}", opt.Value).unwrap();
                             }
                         }
                     }
                     Err(e) => {
-                        write!(text, "Parse error: {:?}", e);
+                        write!(text, "Parse error: {:?}", e).unwrap();
                     }
                 }
             }
@@ -1038,143 +1168,32 @@ fn big_clunky_thing(
                             strings_map
                                 .get(&method.MethodTitle)
                                 .unwrap_or(&String::from("InvalidId"))
-                        );
+                        )
+                        .unwrap();
                     }
                     print_form_map(&form_map);
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x5E: Catenate
             parser::IfrOpcode::Catenate => {}
             // 0x5F: GUID
             parser::IfrOpcode::Guid => {
-                match parser::ifr_guid(operation.Data.unwrap()) {
-                    Ok((unp, guid)) => {
-                        if !unp.is_empty() {
-                            write!(text, "Unparsed: 0x{:X}, ", unp.len());
-                        }
-
-                        // This manual parsing here is ugly and can ultimately be done using nom,
-                        // but it's done already and not that important anyway
-                        // TODO: refactor later
-                        let mut done = false;
-                        match guid.Guid {
-                            parser::IFR_TIANO_GUID => {
-                                if let Ok((_, edk2)) = parser::ifr_guid_edk2(guid.Data) {
-                                    match edk2.ExtendedOpCode {
-                                        parser::IfrEdk2ExtendOpCode::Banner => {
-                                            if let Ok((_, banner)) =
-                                                parser::ifr_guid_edk2_banner(edk2.Data)
-                                            {
-                                                write!(text, "Guid: {}, ExtendedOpCode: {:?}, Title: \"{}\", LineNumber: {}, Alignment: {} ", 
-                                                                    guid.Guid, 
-                                                                    edk2.ExtendedOpCode,
-                                                                    strings_map.get(&banner.Title).unwrap_or(&String::from("InvalidId")),
-                                                                    banner.LineNumber,
-                                                                    banner.Alignment);
-                                                done = true;
-                                            }
-                                        }
-                                        parser::IfrEdk2ExtendOpCode::Label => {
-                                            if edk2.Data.len() == 2 {
-                                                write!(text, "Guid: {}, ExtendedOpCode: {:?}, LabelNumber: {}", 
-                                                                        guid.Guid, 
-                                                                        edk2.ExtendedOpCode,
-                                                                        edk2.Data[1] as u16 * 100 + edk2.Data[0] as u16);
-                                                done = true;
-                                            }
-                                        }
-                                        parser::IfrEdk2ExtendOpCode::Timeout => {
-                                            if edk2.Data.len() == 2 {
-                                                write!(
-                                                    text,
-                                                    "Guid: {}, ExtendedOpCode: {:?}, Timeout: {}",
-                                                    guid.Guid,
-                                                    edk2.ExtendedOpCode,
-                                                    edk2.Data[1] as u16 * 100 + edk2.Data[0] as u16
-                                                );
-                                                done = true;
-                                            }
-                                        }
-                                        parser::IfrEdk2ExtendOpCode::Class => {
-                                            if edk2.Data.len() == 2 {
-                                                write!(
-                                                    text,
-                                                    "Guid: {}, ExtendedOpCode: {:?}, Class: {}",
-                                                    guid.Guid,
-                                                    edk2.ExtendedOpCode,
-                                                    edk2.Data[1] as u16 * 100 + edk2.Data[0] as u16
-                                                );
-                                                done = true;
-                                            }
-                                        }
-                                        parser::IfrEdk2ExtendOpCode::SubClass => {
-                                            if edk2.Data.len() == 2 {
-                                                write!(
-                                                    text,
-                                                    "Guid: {}, ExtendedOpCode: {:?}, SubClass: {}",
-                                                    guid.Guid,
-                                                    edk2.ExtendedOpCode,
-                                                    edk2.Data[1] as u16 * 100 + edk2.Data[0] as u16
-                                                );
-                                                done = true;
-                                            }
-                                        }
-                                        parser::IfrEdk2ExtendOpCode::Unknown(_) => {}
-                                    }
-                                }
-                            }
-                            parser::IFR_FRAMEWORK_GUID => {
-                                if let Ok((_, edk)) = parser::ifr_guid_edk(guid.Data) {
-                                    match edk.ExtendedOpCode {
-                                        parser::IfrEdkExtendOpCode::OptionKey => {
-                                            write!(text, "Guid: {}, ExtendedOpCode: {:?}, QuestionId: {}, Data: {:?}", 
-                                                                        guid.Guid, 
-                                                                        edk.ExtendedOpCode,
-                                                                        edk.QuestionId,
-                                                                        edk.Data);
-                                            done = true;
-                                        }
-                                        parser::IfrEdkExtendOpCode::VarEqName => {
-                                            if edk.Data.len() == 2 {
-                                                let name_id =
-                                                    edk.Data[1] as u16 * 100 + edk.Data[0] as u16;
-                                                write!(text, "Guid: {}, ExtendedOpCode: {:?}, QuestionId: {}, Name: \"{}\"", 
-                                                                        guid.Guid, 
-                                                                        edk.ExtendedOpCode,
-                                                                        edk.QuestionId,
-                                                                        strings_map.get(&name_id).unwrap_or(&String::from("InvalidId")));
-                                                done = true;
-                                            }
-                                        }
-                                        parser::IfrEdkExtendOpCode::Unknown(_) => {}
-                                    }
-                                }
-                            }
-                            _ => {}
-                        }
-                        if !done {
-                            write!(text, "Guid: {}, Optional data: {:?}", guid.Guid, guid.Data);
-                        }
-                    }
-                    Err(e) => {
-                        write!(text, "Parse error: {:?}", e);
-                    }
-                }
+                handle_guid(operation, text, strings_map);
             }
             // 0x60: Security
             parser::IfrOpcode::Security => match parser::ifr_security(operation.Data.unwrap()) {
                 Ok((unp, sec)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "Guid: {}", sec.Guid);
+                    write!(text, "Guid: {}", sec.Guid).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x61: ModalTag
@@ -1183,20 +1202,20 @@ fn big_clunky_thing(
             parser::IfrOpcode::RefreshId => match parser::ifr_refresh_id(operation.Data.unwrap()) {
                 Ok((unp, rid)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "Guid: {}", rid.Guid);
+                    write!(text, "Guid: {}", rid.Guid).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x63: WarningIf
             parser::IfrOpcode::WarningIf => match parser::ifr_warning_if(operation.Data.unwrap()) {
                 Ok((unp, warn)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
                     write!(
@@ -1206,23 +1225,24 @@ fn big_clunky_thing(
                         strings_map
                             .get(&warn.WarningStringId)
                             .unwrap_or(&String::from("InvalidId"))
-                    );
+                    )
+                    .unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x64: Match2
             parser::IfrOpcode::Match2 => match parser::ifr_match_2(operation.Data.unwrap()) {
                 Ok((unp, m2)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "Guid: {}", m2.Guid);
+                    write!(text, "Guid: {}", m2.Guid).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // Unknown operation
@@ -1231,10 +1251,11 @@ fn big_clunky_thing(
                     text,
                     " - can't parse IFR operation of unknown type 0x{:X}",
                     x
-                );
+                )
+                .unwrap();
             }
         }
-        writeln!(text);
+        writeln!(text).unwrap();
 
         if operation.ScopeStart {
             scope_depth += 1;
