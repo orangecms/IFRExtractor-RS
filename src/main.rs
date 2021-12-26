@@ -1062,7 +1062,7 @@ fn handle_operations(
                     match parser::ifr_question_ref_3(operation.Data.unwrap()) {
                         Ok((unp, qr)) => {
                             if !unp.is_empty() {
-                                write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                                write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                             }
 
                             if let Some(x) = qr.DevicePathId {
@@ -1070,14 +1070,15 @@ fn handle_operations(
                                     text,
                                     "DevicePath: \"{}\"",
                                     strings_map.get(&x).unwrap_or(&String::from("InvalidId"))
-                                );
+                                )
+                                .unwrap();
                             }
                             if let Some(x) = qr.QuestionGuid {
-                                write!(text, "Guid: {}", x);
+                                write!(text, "Guid: {}", x).unwrap();
                             }
                         }
                         Err(e) => {
-                            write!(text, "Parse error: {:?}", e);
+                            write!(text, "Parse error: {:?}", e).unwrap();
                         }
                     }
                 }
@@ -1100,13 +1101,13 @@ fn handle_operations(
             parser::IfrOpcode::Span => match parser::ifr_span(operation.Data.unwrap()) {
                 Ok((unp, span)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "Flags: 0x{:X}", span.Flags);
+                    write!(text, "Flags: 0x{:X}", span.Flags).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x5A: Value
@@ -1115,32 +1116,34 @@ fn handle_operations(
             parser::IfrOpcode::Default => match parser::ifr_default(operation.Data.unwrap()) {
                 Ok((unp, def)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "DefaultId: {} ", def.DefaultId);
+                    write!(text, "DefaultId: {} ", def.DefaultId).unwrap();
                     match def.Value {
                         parser::IfrTypeValue::String(x) => {
                             write!(
                                 text,
                                 "String: \"{}\"",
                                 strings_map.get(&x).unwrap_or(&String::from("InvalidId"))
-                            );
+                            )
+                            .unwrap();
                         }
                         parser::IfrTypeValue::Action(x) => {
                             write!(
                                 text,
                                 "Action: \"{}\"",
                                 strings_map.get(&x).unwrap_or(&String::from("InvalidId"))
-                            );
+                            )
+                            .unwrap();
                         }
                         _ => {
-                            write!(text, "Value: {}", def.Value);
+                            write!(text, "Value: {}", def.Value).unwrap();
                         }
                     }
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x5C: DefaultStore
@@ -1148,7 +1151,7 @@ fn handle_operations(
                 match parser::ifr_default_store(operation.Data.unwrap()) {
                     Ok((unp, default_store)) => {
                         if !unp.is_empty() {
-                            write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                            write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                         }
 
                         write!(
@@ -1158,10 +1161,11 @@ fn handle_operations(
                             strings_map
                                 .get(&default_store.NameStringId)
                                 .unwrap_or(&String::from("InvalidId"))
-                        );
+                        )
+                        .unwrap();
                     }
                     Err(e) => {
-                        write!(text, "Parse error: {:?}", e);
+                        write!(text, "Parse error: {:?}", e).unwrap();
                     }
                 }
             }
@@ -1169,10 +1173,10 @@ fn handle_operations(
             parser::IfrOpcode::FormMap => match parser::ifr_form_map(operation.Data.unwrap()) {
                 Ok((unp, form_map)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "FormId: {}", form_map.FormId);
+                    write!(text, "FormId: {}", form_map.FormId).unwrap();
                     for method in &form_map.Methods {
                         write!(
                             text,
