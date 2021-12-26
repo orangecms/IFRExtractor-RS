@@ -185,7 +185,7 @@ fn handle_guid(
     }
 }
 
-fn big_clunky_thing(
+fn handle_operations(
     operations: &[parser::IfrOperation],
     text: &mut Vec<u8>,
     strings_map: &HashMap<u16, String>,
@@ -1498,7 +1498,7 @@ Consider splitting the input file",
                             .unwrap();
                         }
 
-                        big_clunky_thing(&operations, &mut text, &strings_map);
+                        handle_operations(&operations, &mut text, &strings_map);
                     }
                     Err(e) => {
                         writeln!(&mut text, "IFR operations parse error: {:?}", e).unwrap();
