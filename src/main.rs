@@ -1003,13 +1003,13 @@ fn handle_operations(
             parser::IfrOpcode::ToString => match parser::ifr_to_string(operation.Data.unwrap()) {
                 Ok((unp, ts)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "Format: 0x{:X}", ts.Format);
+                    write!(text, "Format: 0x{:X}", ts.Format).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x4A: ToBoolean
@@ -1020,13 +1020,13 @@ fn handle_operations(
             parser::IfrOpcode::Find => match parser::ifr_find(operation.Data.unwrap()) {
                 Ok((unp, fnd)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "Format: 0x{:X}", fnd.Format);
+                    write!(text, "Format: 0x{:X}", fnd.Format).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x4D: Token
@@ -1036,7 +1036,7 @@ fn handle_operations(
                 match parser::ifr_string_ref_1(operation.Data.unwrap()) {
                     Ok((unp, st)) => {
                         if !unp.is_empty() {
-                            write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                            write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                         }
 
                         write!(
@@ -1045,10 +1045,11 @@ fn handle_operations(
                             strings_map
                                 .get(&st.StringId)
                                 .unwrap_or(&String::from("InvalidId"))
-                        );
+                        )
+                        .unwrap();
                     }
                     Err(e) => {
-                        write!(text, "Parse error: {:?}", e);
+                        write!(text, "Parse error: {:?}", e).unwrap();
                     }
                 }
             }
