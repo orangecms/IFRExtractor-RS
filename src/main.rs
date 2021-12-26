@@ -488,7 +488,7 @@ fn handle_operations(
                     )
                     .unwrap();
                     let fs = parser::IfrFormSet {
-                        TitleString: String::from(title_string),
+                        TitleString: title_string,
                         ..form_set
                     };
                     print_form_set(&fs);
