@@ -499,7 +499,7 @@ fn big_clunky_thing(
                         write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "Prompt: \"{}\", Help: \"{}\", QuestionFlags: 0x{:X}, QuestionId: {}, VarStoreId: {}, VarStoreInfo: 0x{:X} ", 
+                    write!(text, "Prompt: \"{}\", Help: \"{}\", QuestionFlags: 0x{:X}, QuestionId: {}, VarStoreId: {}, VarStoreInfo: 0x{:X} ",
                                                 strings_map.get(&rf.PromptStringId).unwrap_or(&String::from("InvalidId")),
                                                 strings_map.get(&rf.HelpStringId).unwrap_or(&String::from("InvalidId")),
                                                 rf.QuestionFlags,
@@ -769,7 +769,8 @@ fn big_clunky_thing(
                         text,
                         "GUID: {}, VarStoreId: {}, Size: 0x{:X}, Name: \"{}\"",
                         var_store.Guid, var_store.VarStoreId, var_store.Size, var_store.Name
-                    );
+                    )
+                    .unwrap();
                 }
                 Err(e) => {
                     write!(text, "Parse error: {:?}", e).unwrap();
@@ -1275,6 +1276,109 @@ fn big_clunky_thing(
     }
 }
 
+fn handle_sibt_blocks(
+    sibt_blocks: &[parser::HiiSibtBlock],
+    strings_map: &mut HashMap<u16, String>,
+) {
+    let mut current_string_index = 1;
+    for block in sibt_blocks {
+        match block.Type {
+            // 0x00: End
+            parser::HiiSibtType::End => {}
+            // 0x10: StringScsu
+            parser::HiiSibtType::StringScsu => {
+                if let Ok((_, string)) = parser::sibt_string_scsu(block.Data.unwrap()) {
+                    strings_map.insert(current_string_index, string);
+                    current_string_index += 1;
+                }
+            }
+            // 0x11: StringScsuFont
+            parser::HiiSibtType::StringScsuFont => {
+                if let Ok((_, string)) = parser::sibt_string_scsu_font(block.Data.unwrap()) {
+                    strings_map.insert(current_string_index, string);
+                    current_string_index += 1;
+                }
+            }
+            // 0x12: StringsScsu
+            parser::HiiSibtType::StringsScsu => {
+                if let Ok((_, strings)) = parser::sibt_strings_scsu(block.Data.unwrap()) {
+                    for string in strings {
+                        strings_map.insert(current_string_index, string);
+                        current_string_index += 1;
+                    }
+                }
+            }
+            // 0x13: StringsScsuFont
+            parser::HiiSibtType::StringsScsuFont => {
+                if let Ok((_, strings)) = parser::sibt_strings_scsu_font(block.Data.unwrap()) {
+                    for string in strings {
+                        strings_map.insert(current_string_index, string);
+                        current_string_index += 1;
+                    }
+                }
+            }
+            // 0x14: StringUcs2
+            parser::HiiSibtType::StringUcs2 => {
+                if let Ok((_, string)) = parser::sibt_string_ucs2(block.Data.unwrap()) {
+                    strings_map.insert(current_string_index, string);
+                    current_string_index += 1;
+                }
+            }
+            // 0x15: StringUcs2Font
+            parser::HiiSibtType::StringUcs2Font => {
+                if let Ok((_, string)) = parser::sibt_string_ucs2_font(block.Data.unwrap()) {
+                    strings_map.insert(current_string_index, string);
+                    current_string_index += 1;
+                }
+            }
+            // 0x16: StringsUcs2
+            parser::HiiSibtType::StringsUcs2 => {
+                if let Ok((_, strings)) = parser::sibt_strings_ucs2(block.Data.unwrap()) {
+                    for string in strings {
+                        strings_map.insert(current_string_index, string);
+                        current_string_index += 1;
+                    }
+                }
+            }
+            // 0x17: StringsUcs2Font
+            parser::HiiSibtType::StringsUcs2Font => {
+                if let Ok((_, strings)) = parser::sibt_strings_ucs2_font(block.Data.unwrap()) {
+                    for string in strings {
+                        strings_map.insert(current_string_index, string);
+                        current_string_index += 1;
+                    }
+                }
+            }
+            // 0x20: Duplicate
+            parser::HiiSibtType::Duplicate => {
+                current_string_index += 1;
+            }
+            // 0x21: Skip2
+            parser::HiiSibtType::Skip2 => {
+                // Manual parsing of Data as u16
+                let count = block.Data.unwrap();
+                current_string_index += count[0] as u16 + 0x100 * count[1] as u16;
+            }
+            // 0x22: Skip1
+            parser::HiiSibtType::Skip1 => {
+                // Manual parsing of Data as u8
+                let count = block.Data.unwrap();
+                current_string_index += count[0] as u16;
+            }
+            // Blocks below don't have any strings nor can they influence current_string_index
+            // No need to parse them here
+            // 0x30: Ext1
+            parser::HiiSibtType::Ext1 => {}
+            // 0x31: Ext2
+            parser::HiiSibtType::Ext2 => {}
+            // 0x32: Ext4
+            parser::HiiSibtType::Ext4 => {}
+            // Unknown SIBT block is impossible, because parsing will fail on it due to it's unknown length
+            parser::HiiSibtType::Unknown(_) => {}
+        }
+    }
+}
+
 fn ifr_extract(path: &OsStr, data: &[u8]) {
     let mut text = Vec::new(); // Output text
     let mut strings_map = HashMap::new(); // Map of StringIds to strings
@@ -1296,7 +1400,8 @@ fn ifr_extract(path: &OsStr, data: &[u8]) {
                             &mut text,
                             "HII string package: remained unparsed: 0x{:X}",
                             unp.len()
-                        );
+                        )
+                        .unwrap();
                     }
 
                     write!(
@@ -1305,12 +1410,13 @@ fn ifr_extract(path: &OsStr, data: &[u8]) {
                         i,
                         candidate.len(),
                         string_package.Language
-                    );
+                    )
+                    .unwrap();
                     i += candidate.len();
 
                     // Skip languages other than English for now
                     if string_package.Language != "en-US" {
-                        writeln!(&mut text, ", skipped");
+                        writeln!(&mut text, ", skipped").unwrap();
                         continue;
                     }
                     // Ask to split the input file if multiple string packages for English are found
@@ -1325,7 +1431,7 @@ Consider splitting the input file",
                         );
                         std::process::exit(3);
                     }
-                    writeln!(&mut text);
+                    writeln!(&mut text).unwrap();
 
                     // Parse SIBT blocks
                     match parser::hii_sibt_blocks(string_package.Data) {
@@ -1335,127 +1441,15 @@ Consider splitting the input file",
                                     &mut text,
                                     "SibtBlocks: remained unparsed: 0x{:X}",
                                     unp.len()
-                                );
+                                )
+                                .unwrap();
                             }
 
                             strings_map.insert(0_u16, String::new());
-                            let mut current_string_index = 1;
-                            for block in &sibt_blocks {
-                                match block.Type {
-                                    // 0x00: End
-                                    parser::HiiSibtType::End => {}
-                                    // 0x10: StringScsu
-                                    parser::HiiSibtType::StringScsu => {
-                                        if let Ok((_, string)) =
-                                            parser::sibt_string_scsu(block.Data.unwrap())
-                                        {
-                                            strings_map.insert(current_string_index, string);
-                                            current_string_index += 1;
-                                        }
-                                    }
-                                    // 0x11: StringScsuFont
-                                    parser::HiiSibtType::StringScsuFont => {
-                                        if let Ok((_, string)) =
-                                            parser::sibt_string_scsu_font(block.Data.unwrap())
-                                        {
-                                            strings_map.insert(current_string_index, string);
-                                            current_string_index += 1;
-                                        }
-                                    }
-                                    // 0x12: StringsScsu
-                                    parser::HiiSibtType::StringsScsu => {
-                                        if let Ok((_, strings)) =
-                                            parser::sibt_strings_scsu(block.Data.unwrap())
-                                        {
-                                            for string in strings {
-                                                strings_map.insert(current_string_index, string);
-                                                current_string_index += 1;
-                                            }
-                                        }
-                                    }
-                                    // 0x13: StringsScsuFont
-                                    parser::HiiSibtType::StringsScsuFont => {
-                                        if let Ok((_, strings)) =
-                                            parser::sibt_strings_scsu_font(block.Data.unwrap())
-                                        {
-                                            for string in strings {
-                                                strings_map.insert(current_string_index, string);
-                                                current_string_index += 1;
-                                            }
-                                        }
-                                    }
-                                    // 0x14: StringUcs2
-                                    parser::HiiSibtType::StringUcs2 => {
-                                        if let Ok((_, string)) =
-                                            parser::sibt_string_ucs2(block.Data.unwrap())
-                                        {
-                                            strings_map.insert(current_string_index, string);
-                                            current_string_index += 1;
-                                        }
-                                    }
-                                    // 0x15: StringUcs2Font
-                                    parser::HiiSibtType::StringUcs2Font => {
-                                        if let Ok((_, string)) =
-                                            parser::sibt_string_ucs2_font(block.Data.unwrap())
-                                        {
-                                            strings_map.insert(current_string_index, string);
-                                            current_string_index += 1;
-                                        }
-                                    }
-                                    // 0x16: StringsUcs2
-                                    parser::HiiSibtType::StringsUcs2 => {
-                                        if let Ok((_, strings)) =
-                                            parser::sibt_strings_ucs2(block.Data.unwrap())
-                                        {
-                                            for string in strings {
-                                                strings_map.insert(current_string_index, string);
-                                                current_string_index += 1;
-                                            }
-                                        }
-                                    }
-                                    // 0x17: StringsUcs2Font
-                                    parser::HiiSibtType::StringsUcs2Font => {
-                                        if let Ok((_, strings)) =
-                                            parser::sibt_strings_ucs2_font(block.Data.unwrap())
-                                        {
-                                            for string in strings {
-                                                strings_map.insert(current_string_index, string);
-                                                current_string_index += 1;
-                                            }
-                                        }
-                                    }
-                                    // 0x20: Duplicate
-                                    parser::HiiSibtType::Duplicate => {
-                                        current_string_index += 1;
-                                    }
-                                    // 0x21: Skip2
-                                    parser::HiiSibtType::Skip2 => {
-                                        // Manual parsing of Data as u16
-                                        let count = block.Data.unwrap();
-                                        current_string_index +=
-                                            count[0] as u16 + 0x100 * count[1] as u16;
-                                    }
-                                    // 0x22: Skip1
-                                    parser::HiiSibtType::Skip1 => {
-                                        // Manual parsing of Data as u8
-                                        let count = block.Data.unwrap();
-                                        current_string_index += count[0] as u16;
-                                    }
-                                    // Blocks below don't have any strings nor can they influence current_string_index
-                                    // No need to parse them here
-                                    // 0x30: Ext1
-                                    parser::HiiSibtType::Ext1 => {}
-                                    // 0x31: Ext2
-                                    parser::HiiSibtType::Ext2 => {}
-                                    // 0x32: Ext4
-                                    parser::HiiSibtType::Ext4 => {}
-                                    // Unknown SIBT block is impossible, because parsing will fail on it due to it's unknown length
-                                    parser::HiiSibtType::Unknown(_) => {}
-                                }
-                            }
+                            handle_sibt_blocks(&sibt_blocks, &mut strings_map);
                         }
                         Err(e) => {
-                            writeln!(&mut text, "HII SIBT blocks parse error: {:?}", e);
+                            writeln!(&mut text, "HII SIBT blocks parse error: {:?}", e).unwrap();
                         }
                     }
                 } else {
