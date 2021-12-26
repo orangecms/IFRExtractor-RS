@@ -472,12 +472,10 @@ fn handle_operations(
                     if !unp.is_empty() {
                         write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
-                    // FIXME: looks ugly, how can it be done with unwrap_or?
-                    let title_string = match strings_map.get(&form_set.TitleStringId) {
-                        Some(v) => v,
-                        None => "InvalidId",
-                    };
-                    // .to_owned()
+                    let title_string = strings_map
+                        .get(&form_set.TitleStringId)
+                        .unwrap_or(&String::from("InvalidId"))
+                        .to_owned();
                     write!(
                         text,
                         "GUID: {}, Title: \"{}\", Help: \"{}\", Flags: 0x{:X}",
