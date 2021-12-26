@@ -550,7 +550,7 @@ fn big_clunky_thing(
                 match parser::ifr_inconsistent_if(operation.Data.unwrap()) {
                     Ok((unp, inc)) => {
                         if !unp.is_empty() {
-                            write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                            write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                         }
 
                         write!(
@@ -571,30 +571,31 @@ fn big_clunky_thing(
             parser::IfrOpcode::EqIdVal => match parser::ifr_eq_id_val(operation.Data.unwrap()) {
                 Ok((unp, eq)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "QuestionId: {}, Value: {}", eq.QuestionId, eq.Value);
+                    write!(text, "QuestionId: {}, Value: {}", eq.QuestionId, eq.Value).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x13: EqIdId
             parser::IfrOpcode::EqIdId => match parser::ifr_eq_id_id(operation.Data.unwrap()) {
                 Ok((unp, eq)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
                     write!(
                         text,
                         "QuestionId: {}, OtherQuestionId: {}",
                         eq.QuestionId, eq.OtherQuestionId
-                    );
+                    )
+                    .unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x14: EqIdValList
@@ -602,17 +603,18 @@ fn big_clunky_thing(
                 match parser::ifr_eq_id_val_list(operation.Data.unwrap()) {
                     Ok((unp, eql)) => {
                         if !unp.is_empty() {
-                            write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                            write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                         }
 
                         write!(
                             text,
                             "QuestionId: {}, Values: {:?}",
                             eql.QuestionId, eql.Values
-                        );
+                        )
+                        .unwrap();
                     }
                     Err(e) => {
-                        write!(text, "Parse error: {:?}", e);
+                        write!(text, "Parse error: {:?}", e).unwrap();
                     }
                 }
             }
@@ -626,13 +628,13 @@ fn big_clunky_thing(
             parser::IfrOpcode::Rule => match parser::ifr_rule(operation.Data.unwrap()) {
                 Ok((unp, rule)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "RuleId: {}", rule.RuleId);
+                    write!(text, "RuleId: {}", rule.RuleId).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x19: GrayOutIf
@@ -641,7 +643,7 @@ fn big_clunky_thing(
             parser::IfrOpcode::Date => match parser::ifr_date(operation.Data.unwrap()) {
                 Ok((unp, dt)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
                     write!(text, "Prompt: \"{}\", Help: \"{}\", QuestionFlags: 0x{:X}, QuestionId: {}, VarStoreId: {}, VarStoreInfo: 0x{:X}, Flags: 0x{:X}", 
@@ -651,17 +653,17 @@ fn big_clunky_thing(
                                                 dt.QuestionId,
                                                 dt.VarStoreId,
                                                 dt.VarStoreInfo,
-                                                dt.Flags);
+                                                dt.Flags).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x1B: Time
             parser::IfrOpcode::Time => match parser::ifr_time(operation.Data.unwrap()) {
                 Ok((unp, time)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
                     write!(text, "Prompt: \"{}\", Help: \"{}\", QuestionFlags: 0x{:X}, QuestionId: {}, VarStoreId: {}, VarStoreInfo: 0x{:X}, Flags: 0x{:X}", 
@@ -671,17 +673,17 @@ fn big_clunky_thing(
                                                 time.QuestionId,
                                                 time.VarStoreId,
                                                 time.VarStoreInfo,
-                                                time.Flags);
+                                                time.Flags).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x1C: String
             parser::IfrOpcode::String => match parser::ifr_string(operation.Data.unwrap()) {
                 Ok((unp, st)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
                     write!(text, "Prompt: \"{}\", Help: \"{}\", QuestionFlags: 0x{:X}, QuestionId: {}, VarStoreId: {}, VarStoreInfo: 0x{:X}, MinSize: {}, MaxSize: {}, Flags: 0x{:X}", 
@@ -693,23 +695,23 @@ fn big_clunky_thing(
                                                 st.VarStoreInfo,
                                                 st.MinSize,
                                                 st.MaxSize,
-                                                st.Flags);
+                                                st.Flags).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x1D: Refresh
             parser::IfrOpcode::Refresh => match parser::ifr_refresh(operation.Data.unwrap()) {
                 Ok((unp, refr)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "RefreshInterval: {}", refr.RefreshInterval);
+                    write!(text, "RefreshInterval: {}", refr.RefreshInterval).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x1E: DisableIf
@@ -718,13 +720,13 @@ fn big_clunky_thing(
             parser::IfrOpcode::Animation => match parser::ifr_animation(operation.Data.unwrap()) {
                 Ok((unp, anim)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "AnimationId: {}", anim.AnimationId);
+                    write!(text, "AnimationId: {}", anim.AnimationId).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x20: ToLower
@@ -738,7 +740,7 @@ fn big_clunky_thing(
                 match parser::ifr_ordered_list(operation.Data.unwrap()) {
                     Ok((unp, ol)) => {
                         if !unp.is_empty() {
-                            write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                            write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                         }
 
                         write!(text, "Prompt: \"{}\", Help: \"{}\", QuestionFlags: 0x{:X}, QuestionId: {}, VarStoreId: {}, VarStoreOffset: 0x{:X}, MaxContainers: {}, Flags: 0x{:X}", 
@@ -749,10 +751,10 @@ fn big_clunky_thing(
                                                 ol.VarStoreId,
                                                 ol.VarStoreInfo,
                                                 ol.MaxContainers,
-                                                ol.Flags);
+                                                ol.Flags).unwrap();
                     }
                     Err(e) => {
-                        write!(text, "Parse error: {:?}", e);
+                        write!(text, "Parse error: {:?}", e).unwrap();
                     }
                 }
             }
@@ -760,7 +762,7 @@ fn big_clunky_thing(
             parser::IfrOpcode::VarStore => match parser::ifr_var_store(operation.Data.unwrap()) {
                 Ok((unp, var_store)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
                     write!(
