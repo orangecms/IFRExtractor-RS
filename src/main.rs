@@ -186,24 +186,24 @@ fn handle_guid(
 }
 
 fn big_clunky_thing(
-    operations: &Vec<parser::IfrOperation>,
+    operations: &[parser::IfrOperation],
     text: &mut Vec<u8>,
     strings_map: &HashMap<u16, String>,
-) -> () {
+) {
     let mut scope_depth = 1;
     for operation in operations {
         if operation.OpCode == parser::IfrOpcode::End && scope_depth >= 1 {
             scope_depth -= 1;
         }
 
-        write!(text, "{:\t<1$}{2:?} ", "", scope_depth, operation.OpCode);
+        write!(text, "{:\t<1$}{2:?} ", "", scope_depth, operation.OpCode).unwrap();
 
         match operation.OpCode {
             // 0x01: Form
             parser::IfrOpcode::Form => match parser::ifr_form(operation.Data.unwrap()) {
                 Ok((unp, form)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
                     write!(
@@ -213,17 +213,18 @@ fn big_clunky_thing(
                         strings_map
                             .get(&form.TitleStringId)
                             .unwrap_or(&String::from("InvalidId"))
-                    );
+                    )
+                    .unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x02: Subtitle
             parser::IfrOpcode::Subtitle => match parser::ifr_subtitle(operation.Data.unwrap()) {
                 Ok((unp, sub)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
                     write!(
@@ -416,7 +417,7 @@ fn big_clunky_thing(
             parser::IfrOpcode::Action => match parser::ifr_action(operation.Data.unwrap()) {
                 Ok((unp, act)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
                     write!(text, "Prompt: \"{}\", Help: \"{}\", QuestionFlags: 0x{:X}, QuestionId: {}, VarStoreId: {}, VarStoreInfo: 0x{:X}", 
@@ -425,17 +426,18 @@ fn big_clunky_thing(
                                                 act.QuestionFlags,
                                                 act.QuestionId,
                                                 act.VarStoreId,
-                                                act.VarStoreInfo);
+                                                act.VarStoreInfo).unwrap();
                     if let Some(x) = act.ConfigStringId {
                         write!(
                             text,
                             ", QuestionConfig: {}",
                             strings_map.get(&x).unwrap_or(&String::from("InvalidId"))
-                        );
+                        )
+                        .unwrap();
                     }
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x0D: ResetButton
@@ -443,7 +445,7 @@ fn big_clunky_thing(
                 match parser::ifr_reset_button(operation.Data.unwrap()) {
                     Ok((unp, rst)) => {
                         if !unp.is_empty() {
-                            write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                            write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                         }
 
                         write!(
@@ -456,10 +458,11 @@ fn big_clunky_thing(
                                 .get(&rst.HelpStringId)
                                 .unwrap_or(&String::from("InvalidId")),
                             rst.DefaultId
-                        );
+                        )
+                        .unwrap();
                     }
                     Err(e) => {
-                        write!(text, "Parse error: {:?}", e);
+                        write!(text, "Parse error: {:?}", e).unwrap();
                     }
                 }
             }
@@ -467,7 +470,7 @@ fn big_clunky_thing(
             parser::IfrOpcode::FormSet => match parser::ifr_form_set(operation.Data.unwrap()) {
                 Ok((unp, form_set)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
                     write!(
@@ -481,18 +484,19 @@ fn big_clunky_thing(
                             .get(&form_set.HelpStringId)
                             .unwrap_or(&String::from("InvalidId")),
                         form_set.Flags
-                    );
+                    )
+                    .unwrap();
                     print_form_set(&form_set);
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x0F: Ref
             parser::IfrOpcode::Ref => match parser::ifr_ref(operation.Data.unwrap()) {
                 Ok((unp, rf)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
                     write!(text, "Prompt: \"{}\", Help: \"{}\", QuestionFlags: 0x{:X}, QuestionId: {}, VarStoreId: {}, VarStoreInfo: 0x{:X} ", 
@@ -501,22 +505,22 @@ fn big_clunky_thing(
                                                 rf.QuestionFlags,
                                                 rf.QuestionId,
                                                 rf.VarStoreId,
-                                                rf.VarStoreInfo);
+                                                rf.VarStoreInfo).unwrap();
                     if let Some(x) = rf.FormId {
-                        write!(text, ", FormId: {}", x);
+                        write!(text, ", FormId: {}", x).unwrap();
                     }
                     if let Some(x) = rf.RefQuestionId {
-                        write!(text, ", RefQuestionId: {}", x);
+                        write!(text, ", RefQuestionId: {}", x).unwrap();
                     }
                     if let Some(x) = rf.FormSetGuid {
-                        write!(text, ", FormSetGuid: {}", x);
+                        write!(text, ", FormSetGuid: {}", x).unwrap();
                     }
                     if let Some(x) = rf.DevicePathId {
-                        write!(text, ", DevicePathId: {}", x);
+                        write!(text, ", DevicePathId: {}", x).unwrap();
                     }
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x10: NoSubmitIf
@@ -524,7 +528,7 @@ fn big_clunky_thing(
                 match parser::ifr_no_submit_if(operation.Data.unwrap()) {
                     Ok((unp, ns)) => {
                         if !unp.is_empty() {
-                            write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                            write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                         }
 
                         write!(
@@ -533,10 +537,11 @@ fn big_clunky_thing(
                             strings_map
                                 .get(&ns.ErrorStringId)
                                 .unwrap_or(&String::from("InvalidId"))
-                        );
+                        )
+                        .unwrap();
                     }
                     Err(e) => {
-                        write!(text, "Parse error: {:?}", e);
+                        write!(text, "Parse error: {:?}", e).unwrap();
                     }
                 }
             }
@@ -554,10 +559,11 @@ fn big_clunky_thing(
                             strings_map
                                 .get(&inc.ErrorStringId)
                                 .unwrap_or(&String::from("InvalidId"))
-                        );
+                        )
+                        .unwrap();
                     }
                     Err(e) => {
-                        write!(text, "Parse error: {:?}", e);
+                        write!(text, "Parse error: {:?}", e).unwrap();
                     }
                 }
             }
@@ -1481,19 +1487,21 @@ Consider splitting the input file",
                             "HII form package: offset 0x{:X}, length: 0x{:X}",
                             i - candidate.len(),
                             candidate.len()
-                        );
+                        )
+                        .unwrap();
                         if !unp.is_empty() {
                             writeln!(
                                 &mut text,
                                 "HII form package: remained unparsed: 0x{:X}",
                                 unp.len()
-                            );
+                            )
+                            .unwrap();
                         }
 
                         big_clunky_thing(&operations, &mut text, &strings_map);
                     }
                     Err(e) => {
-                        writeln!(&mut text, "IFR operations parse error: {:?}", e);
+                        writeln!(&mut text, "IFR operations parse error: {:?}", e).unwrap();
                     }
                 }
             } else {
