@@ -772,7 +772,7 @@ fn big_clunky_thing(
                     );
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x25: VarStoreNameValue
@@ -780,17 +780,18 @@ fn big_clunky_thing(
                 match parser::ifr_var_store_name_value(operation.Data.unwrap()) {
                     Ok((unp, var_store)) => {
                         if !unp.is_empty() {
-                            write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                            write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                         }
 
                         write!(
                             text,
                             "GUID: {}, VarStoreId: {}",
                             var_store.Guid, var_store.VarStoreId
-                        );
+                        )
+                        .unwrap();
                     }
                     Err(e) => {
-                        write!(text, "Parse error: {:?}", e);
+                        write!(text, "Parse error: {:?}", e).unwrap();
                     }
                 }
             }
@@ -799,13 +800,13 @@ fn big_clunky_thing(
                 match parser::ifr_var_store_efi(operation.Data.unwrap()) {
                     Ok((unp, var_store)) => {
                         if !unp.is_empty() {
-                            write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                            write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                         }
 
-                        write!(text, "GUID: {}, VarStoreId: {}, Attributes: 0x{:X}, Size: 0x{:X}, Name: \"{}\"", var_store.Guid, var_store.VarStoreId, var_store.Attributes, var_store.Size, var_store.Name);
+                        write!(text, "GUID: {}, VarStoreId: {}, Attributes: 0x{:X}, Size: 0x{:X}, Name: \"{}\"", var_store.Guid, var_store.VarStoreId, var_store.Attributes, var_store.Size, var_store.Name).unwrap();
                     }
                     Err(e) => {
-                        write!(text, "Parse error: {:?}", e);
+                        write!(text, "Parse error: {:?}", e).unwrap();
                     }
                 }
             }
@@ -814,7 +815,7 @@ fn big_clunky_thing(
                 match parser::ifr_var_store_device(operation.Data.unwrap()) {
                     Ok((unp, var_store)) => {
                         if !unp.is_empty() {
-                            write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                            write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                         }
 
                         write!(
@@ -823,10 +824,11 @@ fn big_clunky_thing(
                             strings_map
                                 .get(&var_store.DevicePathStringId)
                                 .unwrap_or(&String::from("InvalidId"))
-                        );
+                        )
+                        .unwrap();
                     }
                     Err(e) => {
-                        write!(text, "Parse error: {:?}", e);
+                        write!(text, "Parse error: {:?}", e).unwrap();
                     }
                 }
             }
@@ -840,31 +842,33 @@ fn big_clunky_thing(
             parser::IfrOpcode::Get => match parser::ifr_get(operation.Data.unwrap()) {
                 Ok((unp, get)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
                     write!(
                         text,
                         "VarStoreId: {}, VarStoreInfo: {}, VarStoreType: {}",
                         get.VarStoreId, get.VarStoreInfo, get.VarStoreType
-                    );
+                    )
+                    .unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x2C: Set
             parser::IfrOpcode::Set => match parser::ifr_set(operation.Data.unwrap()) {
                 Ok((unp, set)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
                     write!(
                         text,
                         "VarStoreId: {}, VarStoreInfo: {}, VarStoreType: {}",
                         set.VarStoreId, set.VarStoreInfo, set.VarStoreType
-                    );
+                    )
+                    .unwrap();
                 }
                 Err(e) => {
                     write!(text, "Parse error: {:?}", e);
