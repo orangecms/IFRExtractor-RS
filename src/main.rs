@@ -472,21 +472,28 @@ fn handle_operations(
                     if !unp.is_empty() {
                         write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
-
+                    // FIXME: looks ugly, how can it be done with unwrap_or?
+                    let title_string = match strings_map.get(&form_set.TitleStringId) {
+                        Some(v) => v,
+                        None => "InvalidId",
+                    };
+                    // .to_owned()
                     write!(
                         text,
                         "GUID: {}, Title: \"{}\", Help: \"{}\", Flags: 0x{:X}",
                         form_set.Guid,
-                        strings_map
-                            .get(&form_set.TitleStringId)
-                            .unwrap_or(&String::from("InvalidId")),
+                        title_string,
                         strings_map
                             .get(&form_set.HelpStringId)
                             .unwrap_or(&String::from("InvalidId")),
                         form_set.Flags
                     )
                     .unwrap();
-                    print_form_set(&form_set);
+                    let fs = parser::IfrFormSet {
+                        TitleString: String::from(title_string),
+                        ..form_set
+                    };
+                    print_form_set(&fs);
                 }
                 Err(e) => {
                     write!(text, "Parse error: {:?}", e).unwrap();

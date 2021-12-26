@@ -1109,6 +1109,7 @@ pub fn ifr_reset_button(input: &[u8]) -> IResult<&[u8], IfrResetButton> {
 pub struct IfrFormSet {
     pub Guid: Guid,
     pub TitleStringId: u16,
+    pub TitleString: String,
     pub HelpStringId: u16,
     pub Flags: u8,
     pub ClassGuid: Guid,
@@ -1125,6 +1126,7 @@ pub fn ifr_form_set(input: &[u8]) -> IResult<&[u8], IfrFormSet> {
             >> (IfrFormSet {
                 Guid: mg,
                 TitleStringId: tsid,
+                TitleString: String::from(""),
                 HelpStringId: hsid,
                 Flags: flags,
                 ClassGuid: clsg,
