@@ -871,7 +871,7 @@ fn big_clunky_thing(
                     .unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x2D: Read
@@ -914,13 +914,13 @@ fn big_clunky_thing(
             parser::IfrOpcode::RuleRef => match parser::ifr_rule_ref(operation.Data.unwrap()) {
                 Ok((unp, rule)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "RuleId: {}", rule.RuleId);
+                    write!(text, "RuleId: {}", rule.RuleId).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x40: QuestionRef1
@@ -928,13 +928,13 @@ fn big_clunky_thing(
                 match parser::ifr_question_ref_1(operation.Data.unwrap()) {
                     Ok((unp, qr)) => {
                         if !unp.is_empty() {
-                            write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                            write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                         }
 
-                        write!(text, "QuestionId: {}", qr.QuestionId);
+                        write!(text, "QuestionId: {}", qr.QuestionId).unwrap();
                     }
                     Err(e) => {
-                        write!(text, "Parse error: {:?}", e);
+                        write!(text, "Parse error: {:?}", e).unwrap();
                     }
                 }
             }
@@ -944,52 +944,52 @@ fn big_clunky_thing(
             parser::IfrOpcode::Uint8 => match parser::ifr_uint8(operation.Data.unwrap()) {
                 Ok((unp, u)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "Value: {}", u.Value);
+                    write!(text, "Value: {}", u.Value).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x43: Uint16
             parser::IfrOpcode::Uint16 => match parser::ifr_uint16(operation.Data.unwrap()) {
                 Ok((unp, u)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "Value: {}", u.Value);
+                    write!(text, "Value: {}", u.Value).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x44: Uint32
             parser::IfrOpcode::Uint32 => match parser::ifr_uint32(operation.Data.unwrap()) {
                 Ok((unp, u)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "Value: {}", u.Value);
+                    write!(text, "Value: {}", u.Value).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x45: Uint64
             parser::IfrOpcode::Uint64 => match parser::ifr_uint64(operation.Data.unwrap()) {
                 Ok((unp, u)) => {
                     if !unp.is_empty() {
-                        write!(text, "Unparsed: 0x{:X}, ", unp.len());
+                        write!(text, "Unparsed: 0x{:X}, ", unp.len()).unwrap();
                     }
 
-                    write!(text, "Value: {}", u.Value);
+                    write!(text, "Value: {}", u.Value).unwrap();
                 }
                 Err(e) => {
-                    write!(text, "Parse error: {:?}", e);
+                    write!(text, "Parse error: {:?}", e).unwrap();
                 }
             },
             // 0x46: True
